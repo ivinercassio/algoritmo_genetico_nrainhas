@@ -37,7 +37,7 @@ public class Ag {
 
             // imprimir o numero da geracao e o melhor individuo (genes e getAvaliacao)
             imprimirMelhorIndividuo(i, newPopulacao);
-            
+
             populacaoInicial = newPopulacao;
         }
 
@@ -47,14 +47,14 @@ public class Ag {
 
     private List<Individuo> aplicarElitismo(int numElite, List<Individuo> join) {
         List<Individuo> eliteList = new ArrayList<>();
-        for (int j = 0; j < join.size() - 1; j++) 
-            for (int j2 = j; j2 < join.size(); j2++) 
+        for (int j = 0; j < join.size() - 1; j++)
+            for (int j2 = j; j2 < join.size(); j2++)
                 if (join.get(j).getAvaliacao() > join.get(j2).getAvaliacao()) {
                     Individuo aux = join.get(j);
                     join.set(j, join.get(j2));
                     join.set(j2, aux);
                 }
-        for (int j = 0; j < numElite; j++) 
+        for (int j = 0; j < numElite; j++)
             eliteList.add(join.removeLast());
         return eliteList;
     }
@@ -88,34 +88,70 @@ public class Ag {
     private Individuo imprimirMelhorIndividuo(int i, List<Individuo> newPopulacao) {
         Individuo melhor = null;
         int avaliacao = Integer.MIN_VALUE;
-        for (int j = 0; j < newPopulacao.size(); j++) 
+        for (int j = 0; j < newPopulacao.size(); j++)
             if (newPopulacao.get(j).getAvaliacao() > avaliacao) {
                 melhor = newPopulacao.get(j);
-                avaliacao = ((int)newPopulacao.get(j).getAvaliacao());
+                avaliacao = ((int) newPopulacao.get(j).getAvaliacao());
             }
-        System.out.println(" Geracao: " + (i+1) + " .... "+ melhor.toString());
+        System.out.println(" Geracao: " + (i + 1) + " .... " + melhor.toString());
         return melhor;
     }
 
     private List<Individuo> aplicarRoleta(List<Individuo> join, int quantidade) {
+
         int somatorioAvaliacoes = 0;
-        for (int i = 0; i < join.size(); i++) 
+        for (int i = 0; i < join.size(); i++)
             somatorioAvaliacoes += join.get(i).getAvaliacao();
         List<Individuo> selecionados = new ArrayList<>(quantidade);
 
         if (join.get(0).isMaximizacao()) {
             // maximazacao
+            selecionados = aplicarRoletaMaximizacao(join, quantidade);
         } else {
-            for (int i = 0; i < quantidade; i++) {
-                int soma = 0;
-                Individuo escolhido = null;
-                while (soma < random.nextInt(0, somatorioAvaliacoes)) 
-                    for (int j = 0; j < join.size(); j++) {
-                        soma += join.get(j).getAvaliacao();
-                        escolhido = join.get(j);
-                    }
-                selecionados.add(escolhido);
-            }
+            // minimizacao
+            selecionados = aplicarRoletaMinimizacao(join, quantidade);
+
+        }
+        return selecionados;
+    }
+
+    private List<Individuo> aplicarRoletaMaximizacao(List<Individuo> join, int quantidade) {
+        List<Individuo> selecionados = new ArrayList<>(quantidade);
+        for (int i = 0; i < quantidade; i++) {
+            int somatorioAvaliacoes = 0;
+            for (int j = 0; i < join.size(); j++)
+                somatorioAvaliacoes += join.get(j).getAvaliacao();
+
+            int soma = 0;
+            Individuo escolhido = null;
+            while (soma < random.nextInt(0, somatorioAvaliacoes))
+                for (int j = 0; j < join.size(); j++) {
+                    soma += join.get(j).getAvaliacao();
+                    escolhido = join.get(j);
+                }
+            selecionados.add(escolhido);
+            join.remove(escolhido);
+        }
+        return selecionados;
+    }
+
+    private List<Individuo> aplicarRoletaMinimizacao(List<Individuo> join, int quantidade) {
+        // ALTERAR ISSO
+        List<Individuo> selecionados = new ArrayList<>(quantidade);
+        for (int i = 0; i < quantidade; i++) {
+            int somatorioAvaliacoes = 0;
+            for (int j = 0; i < join.size(); j++)
+                somatorioAvaliacoes += join.get(j).getAvaliacao();
+
+            int soma = 0;
+            Individuo escolhido = null;
+            while (soma < random.nextInt(0, somatorioAvaliacoes))
+                for (int j = 0; j < join.size(); j++) {
+                    soma += join.get(j).getAvaliacao();
+                    escolhido = join.get(j);
+                }
+            selecionados.add(escolhido);
+            join.remove(escolhido);
         }
         return selecionados;
     }
