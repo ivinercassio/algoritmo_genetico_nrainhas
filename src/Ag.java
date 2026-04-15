@@ -8,7 +8,7 @@ public class Ag {
 
     public Individuo executar(Factory factory, int numPopulacao, int numElite, int qtdGeracoes) {
         List<Individuo> populacaoInicial = new ArrayList<>(numPopulacao);
-        for (int i = 0; i < numPopulacao; i++) 
+        for (int i = 0; i < numPopulacao; i++)
             populacaoInicial.add(factory.getInstance());
 
         for (int i = 0; i < qtdGeracoes; i++) {
@@ -25,29 +25,39 @@ public class Ag {
             novaPopulacao.addAll(aplicarElitismo(numElite, join));
             novaPopulacao.addAll(aplicarRoleta(join, (numPopulacao - numElite)));
 
+            populacaoInicial = novaPopulacao;
+
             // imprimir o numero da geracao e o melhor individuo (genes e getAvaliacao)
             Individuo melhor = melhorIndividuo(novaPopulacao);
             imprimirIndividuo(i, melhor);
             if (estaOtimizado(melhor))
                 break;
-
-            populacaoInicial = novaPopulacao;
         }
 
-        // return o melhor individuo da ultima geracao
         // possivelmente alterar quando houver parada antes do limite de geracoes
+        imprimirUltimaGeracao(populacaoInicial);
         return melhorIndividuo(populacaoInicial);
     }
 
     private List<Individuo> aplicarElitismo(int numElite, List<Individuo> join) {
         List<Individuo> eliteList = new ArrayList<>();
-        for (int j = 0; j < join.size() - 1; j++)
-            for (int j2 = j; j2 < join.size(); j2++)
-                if (join.get(j).getAvaliacao() > join.get(j2).getAvaliacao()) {
-                    Individuo aux = join.get(j);
-                    join.set(j, join.get(j2));
-                    join.set(j2, aux);
-                }
+        if (join.get(0).isMaximizacao()) { // maximizacao
+            for (int j = 0; j < join.size() - 1; j++)
+                for (int j2 = j; j2 < join.size(); j2++)
+                    if (join.get(j).getAvaliacao() > join.get(j2).getAvaliacao()) {
+                        Individuo aux = join.get(j);
+                        join.set(j, join.get(j2));
+                        join.set(j2, aux);
+                    }
+        } else { // minimizacao
+            for (int j = 0; j < join.size() - 1; j++)
+                for (int j2 = j; j2 < join.size(); j2++)
+                    if (join.get(j).getAvaliacao() > join.get(j2).getAvaliacao()) {
+                        Individuo aux = join.get(j);
+                        join.set(j, join.get(j2));
+                        join.set(j2, aux);
+                    }
+        }
         for (int j = 0; j < numElite; j++)
             eliteList.add(join.remove(join.size() - 1));
         return eliteList;
@@ -75,11 +85,21 @@ public class Ag {
 
     private Individuo melhorIndividuo(List<Individuo> populacao) {
         Individuo melhor = null;
-        int avaliacao = Integer.MIN_VALUE;
-        for (int j = 0; j < populacao.size(); j++) {
-            if (populacao.get(j).getAvaliacao() > avaliacao) {
-                melhor = populacao.get(j);
-                avaliacao = ((int) populacao.get(j).getAvaliacao());
+        if (populacao.get(0).isMaximizacao()) { // maximizacao
+            double avaliacao = Integer.MIN_VALUE;
+            for (int j = 0; j < populacao.size(); j++) {
+                if (populacao.get(j).getAvaliacao() > avaliacao) {
+                    melhor = populacao.get(j);
+                    avaliacao = populacao.get(j).getAvaliacao();
+                }
+            }
+        } else { // minimizacao
+            double avaliacao = Integer.MAX_VALUE;
+            for (int j = 0; j < populacao.size(); j++) {
+                if (populacao.get(j).getAvaliacao() < avaliacao) {
+                    melhor = populacao.get(j);
+                    avaliacao = populacao.get(j).getAvaliacao();
+                }
             }
         }
         return melhor;
@@ -123,16 +143,17 @@ public class Ag {
         for (int j = 0; j < quantidade; j++) {
             double somatorioAvaliacoes = 0;
             for (int k = 0; k < join.size(); k++)
-                somatorioAvaliacoes += (1/join.get(k).getAvaliacao());
+                somatorioAvaliacoes += (1 / join.get(k).getAvaliacao());
 
             double soma = 0;
-            // valores muito pequenos podem ser interpretados como zero e/ou negativos resultando em Infinito
-            if (Double.isInfinite(somatorioAvaliacoes)) 
+            // valores muito pequenos podem ser interpretados como zero e/ou negativos
+            // resultando em Infinito
+            if (Double.isInfinite(somatorioAvaliacoes))
                 somatorioAvaliacoes = Double.MIN_VALUE;
             double sorteado = random.nextDouble(somatorioAvaliacoes);
             Individuo escolhido = null;
             for (int k = 0; k < join.size(); k++) {
-                soma += (1/join.get(k).getAvaliacao());
+                soma += (1 / join.get(k).getAvaliacao());
                 escolhido = join.get(k);
                 if (soma < sorteado)
                     break;
@@ -149,5 +170,13 @@ public class Ag {
         if (melhor.isMaximizacao() && melhor.getAvaliacao() == Integer.MAX_VALUE)
             return true;
         return false;
+    }
+
+    private void imprimirUltimaGeracao(List<Individuo> populacaoInicial) {
+        System.out.println("Última geração inteira: ");
+        for (int i = 0; i < populacaoInicial.size(); i++) {
+            System.out.println(populacaoInicial.get(i).toString());
+        }
+        System.out.println();
     }
 }
