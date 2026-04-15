@@ -6,8 +6,6 @@ public class Ag {
 
     private static Random random = new Random();
 
-    // IMPLEMENTAR PARADA QUANDO ATINGIR A OTIMIZACAO ANTES DO LIMITE DE GERACOES
-
     public Individuo executar(Factory factory, int numPopulacao, int numElite, int qtdGeracoes) {
         List<Individuo> populacaoInicial = new ArrayList<>(numPopulacao);
         for (int i = 0; i < numPopulacao; i++) 
@@ -104,8 +102,8 @@ public class Ag {
             for (int k = 0; k < join.size(); k++)
                 somatorioAvaliacoes += join.get(k).getAvaliacao();
 
-            int soma = 0;
-            double sorteado = random.nextDouble(0, somatorioAvaliacoes);
+            double soma = 0;
+            double sorteado = random.nextDouble(somatorioAvaliacoes);
             Individuo escolhido = null;
             for (int k = 0; k < join.size(); k++) {
                 soma += join.get(k).getAvaliacao();
@@ -127,8 +125,11 @@ public class Ag {
             for (int k = 0; k < join.size(); k++)
                 somatorioAvaliacoes += (1/join.get(k).getAvaliacao());
 
-            int soma = 0;
-            double sorteado = random.nextDouble(0, somatorioAvaliacoes);
+            double soma = 0;
+            // valores muito pequenos podem ser interpretados como zero e/ou negativos resultando em Infinito
+            if (Double.isInfinite(somatorioAvaliacoes)) 
+                somatorioAvaliacoes = Double.MIN_VALUE;
+            double sorteado = random.nextDouble(somatorioAvaliacoes);
             Individuo escolhido = null;
             for (int k = 0; k < join.size(); k++) {
                 soma += (1/join.get(k).getAvaliacao());

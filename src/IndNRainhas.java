@@ -73,9 +73,9 @@ public class IndNRainhas implements Individuo {
             for (int j = i + 1; j < genes.length; j++) {
                 if (genes[i] == genes[j])
                     cont++;
-                if (genes[i] - (genes[j] - j) == 1)
+                if (genes[i] == genes[j] - (j - i))
                     cont++;
-                if (genes[i] - (genes[j] + j) == -1)
+                if (genes[i] == genes[j] + (j - i))
                     cont++;
             }
         }
@@ -98,7 +98,7 @@ public class IndNRainhas implements Individuo {
         for (int i = 0; i < this.genes.length; i++)
             genes += this.genes[i] + " ";
         genes += "}";
-        return "Individuo: { genes: " + genes + " }";
+        return "Individuo: { genes: " + genes + ", avaliacao: " + this.getAvaliacao() + " }";
     }
 
 }
