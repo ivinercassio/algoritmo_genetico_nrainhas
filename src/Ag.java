@@ -6,78 +6,66 @@ public class Ag {
 
     private static Random random = new Random();
 
-    public Individuo executar(Factory factory, int num, int numElite, int qtdGeracoes) {
-        List<Individuo> populacaoInicial = new ArrayList<>(num);
-        for (int i = 0; i < num; i++) {
+    public Individuo executar(Factory factory, int numPopulacao, int numElite, int qtdGeracoes) {
+        List<Individuo> populacaoInicial = new ArrayList<>(numPopulacao);
+        for (int i = 0; i < numPopulacao; i++) 
             populacaoInicial.add(factory.getInstance());
-        }
 
         for (int i = 0; i < qtdGeracoes; i++) {
             List<Individuo> filhos = aplicarRecombinacao(populacaoInicial);
 
             List<Individuo> mutantes = aplicarMutacao(populacaoInicial);
 
-            // JUNCAO DE TODOS OS INDIVIDUOS
-            List<Individuo> join = new ArrayList<>(num * 3);
+            List<Individuo> join = new ArrayList<>(numPopulacao * 3);
             join.addAll(populacaoInicial);
             join.addAll(filhos);
             join.addAll(mutantes);
 
-            // ELITISMO
-            // ordenar a lista join pelo metodo getAvaliacao() de cada Individuo:
-            // -> se problema de minimizacao, ordenar de forma decrescente
-            // -> se problema de maximizacao, ordenar de forma crescente
-            // para aplicar o eletismo, retirar os "numElite" últimos da lista join ordenada
-            List<Individuo> eliteList = aplicarElitismo(numElite, join);
-
-            List<Individuo> newPopulacao = new ArrayList<>(num);
-            newPopulacao.addAll(eliteList);
-            // ROLETA
-            newPopulacao.addAll(this.aplicarRoleta(join, (num - numElite)));
+            List<Individuo> novaPopulacao = new ArrayList<>(numPopulacao);
+            novaPopulacao.addAll(aplicarElitismo(numElite, join));
+            novaPopulacao.addAll(aplicarRoleta(join, (numPopulacao - numElite)));
 
             // imprimir o numero da geracao e o melhor individuo (genes e getAvaliacao)
-            imprimirMelhorIndividuo(i, newPopulacao);
-            
-            populacaoInicial = newPopulacao;
+            Individuo melhor = melhorIndividuo(novaPopulacao);
+            imprimirIndividuo(i, melhor);
+            if (estaOtimizado(melhor))
+                break;
+
+            populacaoInicial = novaPopulacao;
         }
 
-        // return o melhor individuo da ultima geracao (qtdGeracoes)
-        return imprimirMelhorIndividuo(qtdGeracoes, populacaoInicial);
+        // return o melhor individuo da ultima geracao
+        // possivelmente alterar quando houver parada antes do limite de geracoes
+        return melhorIndividuo(populacaoInicial);
     }
 
     private List<Individuo> aplicarElitismo(int numElite, List<Individuo> join) {
         List<Individuo> eliteList = new ArrayList<>();
-        for (int j = 0; j < join.size() - 1; j++) 
-            for (int j2 = j; j2 < join.size(); j2++) 
+        for (int j = 0; j < join.size() - 1; j++)
+            for (int j2 = j; j2 < join.size(); j2++)
                 if (join.get(j).getAvaliacao() > join.get(j2).getAvaliacao()) {
                     Individuo aux = join.get(j);
                     join.set(j, join.get(j2));
                     join.set(j2, aux);
                 }
-        for (int j = 0; j < numElite; j++) 
-            eliteList.add(join.removeLast());
+        for (int j = 0; j < numElite; j++)
+            eliteList.add(join.remove(join.size() - 1));
         return eliteList;
     }
 
     private List<Individuo> aplicarMutacao(List<Individuo> populacaoInicial) {
         List<Individuo> mutantes = new ArrayList<>();
         for (int j = 0; j < populacaoInicial.size(); j++)
-            mutantes.add(populacaoInicial.get(j).mutar()); // gera 20 mutantes
+            mutantes.add(populacaoInicial.get(j).mutar());
         return mutantes;
     }
 
     private List<Individuo> aplicarRecombinacao(List<Individuo> populacaoInicial) {
         List<Individuo> auxiliar = new ArrayList<>();
-        auxiliar.addAll(populacaoInicial); // retira as duplas de pais daqui aleatoriamente
+        auxiliar.addAll(populacaoInicial);
 
         List<Individuo> filhos = new ArrayList<>();
         while (auxiliar.size() > 0) {
-            // RECOMBINAR
-            // escolho de 2 em 2 pais da lista populacaoInicial (aleatorio) e adiciono na
-            // lista auxiliar
-            // -> auxiliar eh a lista de historico de recombinacoes feitas
-            // cada dupla de pais escolhidas deve recombinar e gerar dois filhos
-            // colocar os 20 filhos em uma lista List<Individuo> filhos
             Individuo escolha1 = auxiliar.remove(random.nextInt(0, auxiliar.size()));
             Individuo escolha2 = auxiliar.remove(random.nextInt(0, auxiliar.size()));
             filhos.addAll(escolha1.recombinar(escolha2));
@@ -85,39 +73,81 @@ public class Ag {
         return filhos;
     }
 
-    private Individuo imprimirMelhorIndividuo(int i, List<Individuo> newPopulacao) {
+    private Individuo melhorIndividuo(List<Individuo> populacao) {
         Individuo melhor = null;
         int avaliacao = Integer.MIN_VALUE;
-        for (int j = 0; j < newPopulacao.size(); j++) 
-            if (newPopulacao.get(j).getAvaliacao() > avaliacao) {
-                melhor = newPopulacao.get(j);
-                avaliacao = ((int)newPopulacao.get(j).getAvaliacao());
+        for (int j = 0; j < populacao.size(); j++) {
+            if (populacao.get(j).getAvaliacao() > avaliacao) {
+                melhor = populacao.get(j);
+                avaliacao = ((int) populacao.get(j).getAvaliacao());
             }
-        System.out.println(" Geracao: " + (i+1) + " .... "+ melhor.toString());
+        }
         return melhor;
     }
 
-    private List<Individuo> aplicarRoleta(List<Individuo> join, int quantidade) {
-        int somatorioAvaliacoes = 0;
-        for (int i = 0; i < join.size(); i++) 
-            somatorioAvaliacoes += join.get(i).getAvaliacao();
-        List<Individuo> selecionados = new ArrayList<>(quantidade);
+    private void imprimirIndividuo(int geracao, Individuo individuo) {
+        System.out.println(" Geracao: " + (geracao + 1) + "° .... " + individuo.toString());
+    }
 
-        if (join.get(0).isMaximizacao()) {
-            // maximazacao
-        } else {
-            for (int i = 0; i < quantidade; i++) {
-                int soma = 0;
-                Individuo escolhido = null;
-                while (soma < random.nextInt(0, somatorioAvaliacoes)) 
-                    for (int j = 0; j < join.size(); j++) {
-                        soma += join.get(j).getAvaliacao();
-                        escolhido = join.get(j);
-                    }
-                selecionados.add(escolhido);
+    private List<Individuo> aplicarRoleta(List<Individuo> join, int quantidade) {
+        if (join.get(0).isMaximizacao())
+            return aplicarRoletaMaximizacao(join, quantidade);
+        return aplicarRoletaMinimizacao(join, quantidade);
+    }
+
+    private List<Individuo> aplicarRoletaMaximizacao(List<Individuo> join, int quantidade) {
+        List<Individuo> selecionados = new ArrayList<>(quantidade);
+        for (int j = 0; j < quantidade; j++) {
+            double somatorioAvaliacoes = 0;
+            for (int k = 0; k < join.size(); k++)
+                somatorioAvaliacoes += join.get(k).getAvaliacao();
+
+            double soma = 0;
+            double sorteado = random.nextDouble(somatorioAvaliacoes);
+            Individuo escolhido = null;
+            for (int k = 0; k < join.size(); k++) {
+                soma += join.get(k).getAvaliacao();
+                escolhido = join.get(k);
+                if (soma < sorteado)
+                    break;
             }
+            selecionados.add(escolhido);
+            join.remove(escolhido);
         }
         return selecionados;
     }
 
+    private List<Individuo> aplicarRoletaMinimizacao(List<Individuo> join, int quantidade) {
+        // considera-se o inverso multiplicativo dos getAvaliacao para realizar as somas
+        List<Individuo> selecionados = new ArrayList<>(quantidade);
+        for (int j = 0; j < quantidade; j++) {
+            double somatorioAvaliacoes = 0;
+            for (int k = 0; k < join.size(); k++)
+                somatorioAvaliacoes += (1/join.get(k).getAvaliacao());
+
+            double soma = 0;
+            // valores muito pequenos podem ser interpretados como zero e/ou negativos resultando em Infinito
+            if (Double.isInfinite(somatorioAvaliacoes)) 
+                somatorioAvaliacoes = Double.MIN_VALUE;
+            double sorteado = random.nextDouble(somatorioAvaliacoes);
+            Individuo escolhido = null;
+            for (int k = 0; k < join.size(); k++) {
+                soma += (1/join.get(k).getAvaliacao());
+                escolhido = join.get(k);
+                if (soma < sorteado)
+                    break;
+            }
+            selecionados.add(escolhido);
+            join.remove(escolhido);
+        }
+        return selecionados;
+    }
+
+    private boolean estaOtimizado(Individuo melhor) {
+        if (!melhor.isMaximizacao() && melhor.getAvaliacao() == 0)
+            return true;
+        if (melhor.isMaximizacao() && melhor.getAvaliacao() == Integer.MAX_VALUE)
+            return true;
+        return false;
+    }
 }
