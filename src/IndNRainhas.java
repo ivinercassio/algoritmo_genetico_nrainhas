@@ -1,8 +1,6 @@
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Random;
-import java.util.Set;
 
 public class IndNRainhas implements Individuo {
 
@@ -124,7 +122,7 @@ public class IndNRainhas implements Individuo {
     @Override
     public Individuo mutar() {
         // gera outro individuo com o conteudo do this.genes mutado, de acordo com a txMutacao
-        IndNRainhas mutante = new IndNRainhas(qtdGenes, this.genes);
+        IndNRainhas mutante = new IndNRainhas(qtdGenes, this.genes.clone());
         for (int i = 0; i < genes.length; i++)
             if (random.nextInt() < txMatacao)
                 mutante.genes[i] = random.nextInt(0, qtdGenes);

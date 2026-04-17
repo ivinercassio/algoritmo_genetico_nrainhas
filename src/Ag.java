@@ -13,7 +13,6 @@ public class Ag {
 
         for (int i = 0; i < qtdGeracoes; i++) {
             List<Individuo> filhos = aplicarRecombinacao(populacaoInicial);
-
             List<Individuo> mutantes = aplicarMutacao(populacaoInicial);
 
             List<Individuo> join = new ArrayList<>(numPopulacao * 3);
@@ -25,10 +24,11 @@ public class Ag {
             novaPopulacao.addAll(aplicarElitismo(numElite, join));
             novaPopulacao.addAll(aplicarRoleta(join, (numPopulacao - numElite)));
 
-            populacaoInicial = novaPopulacao;
+            populacaoInicial.clear();
+            populacaoInicial.addAll(novaPopulacao);
 
             // imprimir o numero da geracao e o melhor individuo (genes e getAvaliacao)
-            Individuo melhor = melhorIndividuo(novaPopulacao);
+            Individuo melhor = melhorIndividuo(populacaoInicial);
             imprimirIndividuo(i, melhor);
             if (estaOtimizado(melhor))
                 break;
@@ -40,32 +40,34 @@ public class Ag {
     }
 
     private List<Individuo> aplicarElitismo(int numElite, List<Individuo> join) {
+        List<Individuo> auxiliar = new ArrayList<>();
+        auxiliar.addAll(join);
         List<Individuo> eliteList = new ArrayList<>();
-        if (join.get(0).isMaximizacao()) { // maximizacao
-            for (int j = 0; j < join.size() - 1; j++)
-                for (int j2 = j; j2 < join.size(); j2++)
-                    if (join.get(j).getAvaliacao() > join.get(j2).getAvaliacao()) {
-                        Individuo aux = join.get(j);
-                        join.set(j, join.get(j2));
-                        join.set(j2, aux);
+        if (auxiliar.get(0).isMaximizacao()) { // maximizacao -> crescente
+            for (int j = 0; j < auxiliar.size() - 1; j++)
+                for (int j2 = j; j2 < auxiliar.size(); j2++)
+                    if (auxiliar.get(j).getAvaliacao() > auxiliar.get(j2).getAvaliacao()) {
+                        Individuo aux = auxiliar.get(j);
+                        auxiliar.set(j, auxiliar.get(j2));
+                        auxiliar.set(j2, aux);
                     }
-        } else { // minimizacao
-            for (int j = 0; j < join.size() - 1; j++)
-                for (int j2 = j; j2 < join.size(); j2++)
-                    if (join.get(j).getAvaliacao() > join.get(j2).getAvaliacao()) {
-                        Individuo aux = join.get(j);
-                        join.set(j, join.get(j2));
-                        join.set(j2, aux);
+        } else { // minimizacao -> decrescente
+            for (int j = 0; j < auxiliar.size() - 1; j++)
+                for (int j2 = j; j2 < auxiliar.size(); j2++)
+                    if (auxiliar.get(j).getAvaliacao() < auxiliar.get(j2).getAvaliacao()) {
+                        Individuo aux = auxiliar.get(j);
+                        auxiliar.set(j, auxiliar.get(j2));
+                        auxiliar.set(j2, aux);
                     }
         }
         for (int j = 0; j < numElite; j++)
-            eliteList.add(join.remove(join.size() - 1));
+            eliteList.add(auxiliar.removeLast());
         return eliteList;
     }
 
     private List<Individuo> aplicarMutacao(List<Individuo> populacaoInicial) {
         List<Individuo> mutantes = new ArrayList<>();
-        for (int j = 0; j < populacaoInicial.size(); j++)
+        for (int j = 0; j < populacaoInicial.size(); j++) 
             mutantes.add(populacaoInicial.get(j).mutar());
         return mutantes;
     }
@@ -86,7 +88,7 @@ public class Ag {
     private Individuo melhorIndividuo(List<Individuo> populacao) {
         Individuo melhor = null;
         if (populacao.get(0).isMaximizacao()) { // maximizacao
-            double avaliacao = Integer.MIN_VALUE;
+            double avaliacao = Double.MIN_VALUE;
             for (int j = 0; j < populacao.size(); j++) {
                 if (populacao.get(j).getAvaliacao() > avaliacao) {
                     melhor = populacao.get(j);
@@ -94,7 +96,7 @@ public class Ag {
                 }
             }
         } else { // minimizacao
-            double avaliacao = Integer.MAX_VALUE;
+            double avaliacao = Double.MAX_VALUE;
             for (int j = 0; j < populacao.size(); j++) {
                 if (populacao.get(j).getAvaliacao() < avaliacao) {
                     melhor = populacao.get(j);
@@ -110,9 +112,11 @@ public class Ag {
     }
 
     private List<Individuo> aplicarRoleta(List<Individuo> join, int quantidade) {
-        if (join.get(0).isMaximizacao())
-            return aplicarRoletaMaximizacao(join, quantidade);
-        return aplicarRoletaMinimizacao(join, quantidade);
+        List<Individuo> auxiliar = new ArrayList<>();
+        auxiliar.addAll(join);
+        if (auxiliar.get(0).isMaximizacao())
+            return aplicarRoletaMaximizacao(auxiliar, quantidade);
+        return aplicarRoletaMinimizacao(auxiliar, quantidade);
     }
 
     private List<Individuo> aplicarRoletaMaximizacao(List<Individuo> join, int quantidade) {
@@ -173,7 +177,7 @@ public class Ag {
     }
 
     private void imprimirUltimaGeracao(List<Individuo> populacaoInicial) {
-        System.out.println("Última geração inteira: ");
+        System.out.println("\nÚltima geração inteira: ");
         for (int i = 0; i < populacaoInicial.size(); i++) {
             System.out.println(populacaoInicial.get(i).toString());
         }
