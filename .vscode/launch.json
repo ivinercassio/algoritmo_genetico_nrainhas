@@ -9,6 +9,13 @@
             "name": "AgMain",
             "request": "launch",
             "mainClass": "AgMain",
+            "projectName": "algoritmo_genetico_nrainhas_213defb4"
+        },
+        {
+            "type": "java",
+            "name": "AgMain",
+            "request": "launch",
+            "mainClass": "AgMain",
             "projectName": "algoritmo_genetico_nrainhas_eb6116e7"
         },
         {

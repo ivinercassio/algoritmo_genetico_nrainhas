@@ -4,10 +4,6 @@ import java.util.Random;
 
 public class Ag {
 
-    // ESTA TENDO FLUTUACOES
-    // VERIFICAR O ELETISMO
-    // VERIFICAR A IDENTIFICACAO DO MELHOR INDIVIDUO
-
     private static Random random = new Random();
 
     public Individuo executar(Factory factory, int numPopulacao, int numElite, int qtdGeracoes) {
@@ -17,7 +13,6 @@ public class Ag {
 
         for (int i = 0; i < qtdGeracoes; i++) {
             List<Individuo> filhos = aplicarRecombinacao(populacaoInicial);
-
             List<Individuo> mutantes = aplicarMutacao(populacaoInicial);
 
             List<Individuo> join = new ArrayList<>(numPopulacao * 3);
@@ -29,7 +24,8 @@ public class Ag {
             novaPopulacao.addAll(aplicarElitismo(numElite, join));
             novaPopulacao.addAll(aplicarRoleta(join, (numPopulacao - numElite)));
 
-            populacaoInicial = novaPopulacao;
+            populacaoInicial.clear();
+            populacaoInicial.addAll(novaPopulacao);
 
             // imprimir o numero da geracao e o melhor individuo (genes e getAvaliacao)
             Individuo melhor = melhorIndividuo(populacaoInicial);
@@ -44,32 +40,34 @@ public class Ag {
     }
 
     private List<Individuo> aplicarElitismo(int numElite, List<Individuo> join) {
+        List<Individuo> auxiliar = new ArrayList<>();
+        auxiliar.addAll(join);
         List<Individuo> eliteList = new ArrayList<>();
-        if (join.get(0).isMaximizacao()) { // maximizacao -> crescente
-            for (int j = 0; j < join.size() - 1; j++)
-                for (int j2 = j; j2 < join.size(); j2++)
-                    if (join.get(j).getAvaliacao() > join.get(j2).getAvaliacao()) {
-                        Individuo aux = join.get(j);
-                        join.set(j, join.get(j2));
-                        join.set(j2, aux);
+        if (auxiliar.get(0).isMaximizacao()) { // maximizacao -> crescente
+            for (int j = 0; j < auxiliar.size() - 1; j++)
+                for (int j2 = j; j2 < auxiliar.size(); j2++)
+                    if (auxiliar.get(j).getAvaliacao() > auxiliar.get(j2).getAvaliacao()) {
+                        Individuo aux = auxiliar.get(j);
+                        auxiliar.set(j, auxiliar.get(j2));
+                        auxiliar.set(j2, aux);
                     }
         } else { // minimizacao -> decrescente
-            for (int j = 0; j < join.size() - 1; j++)
-                for (int j2 = j; j2 < join.size(); j2++)
-                    if (join.get(j).getAvaliacao() < join.get(j2).getAvaliacao()) {
-                        Individuo aux = join.get(j);
-                        join.set(j, join.get(j2));
-                        join.set(j2, aux);
+            for (int j = 0; j < auxiliar.size() - 1; j++)
+                for (int j2 = j; j2 < auxiliar.size(); j2++)
+                    if (auxiliar.get(j).getAvaliacao() < auxiliar.get(j2).getAvaliacao()) {
+                        Individuo aux = auxiliar.get(j);
+                        auxiliar.set(j, auxiliar.get(j2));
+                        auxiliar.set(j2, aux);
                     }
         }
         for (int j = 0; j < numElite; j++)
-            eliteList.add(join.removeLast());
+            eliteList.add(auxiliar.removeLast());
         return eliteList;
     }
 
     private List<Individuo> aplicarMutacao(List<Individuo> populacaoInicial) {
         List<Individuo> mutantes = new ArrayList<>();
-        for (int j = 0; j < populacaoInicial.size(); j++)
+        for (int j = 0; j < populacaoInicial.size(); j++) 
             mutantes.add(populacaoInicial.get(j).mutar());
         return mutantes;
     }
@@ -114,9 +112,11 @@ public class Ag {
     }
 
     private List<Individuo> aplicarRoleta(List<Individuo> join, int quantidade) {
-        if (join.get(0).isMaximizacao())
-            return aplicarRoletaMaximizacao(join, quantidade);
-        return aplicarRoletaMinimizacao(join, quantidade);
+        List<Individuo> auxiliar = new ArrayList<>();
+        auxiliar.addAll(join);
+        if (auxiliar.get(0).isMaximizacao())
+            return aplicarRoletaMaximizacao(auxiliar, quantidade);
+        return aplicarRoletaMinimizacao(auxiliar, quantidade);
     }
 
     private List<Individuo> aplicarRoletaMaximizacao(List<Individuo> join, int quantidade) {
