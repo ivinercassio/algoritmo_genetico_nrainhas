@@ -35,7 +35,7 @@ public class Ag {
         }
 
         // possivelmente alterar quando houver parada antes do limite de geracoes
-        imprimirUltimaGeracao(populacaoInicial);
+        // imprimirUltimaGeracao(populacaoInicial);
         return melhorIndividuo(populacaoInicial);
     }
 
@@ -102,9 +102,10 @@ public class Ag {
             Individuo escolhido = null;
             for (int k = 0; k < join.size(); k++) {
                 soma += join.get(k).getAvaliacao();
-                escolhido = join.get(k);
-                if (soma < sorteado)
+                if (soma >= sorteado) {
+                    escolhido = join.get(k);
                     break;
+                }
             }
             selecionados.add(escolhido);
             join.remove(escolhido);
@@ -129,9 +130,10 @@ public class Ag {
             Individuo escolhido = null;
             for (int k = 0; k < join.size(); k++) {
                 soma += (1 / join.get(k).getAvaliacao());
-                escolhido = join.get(k);
-                if (soma < sorteado)
+                if (soma >= sorteado) {
+                    escolhido = join.get(k);
                     break;
+                }
             }
             selecionados.add(escolhido);
             join.remove(escolhido);
