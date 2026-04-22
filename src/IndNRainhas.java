@@ -4,7 +4,7 @@ import java.util.Random;
 
 public class IndNRainhas implements Individuo {
 
-    private double txMatacao = 0.3;
+    private double txMatacao = 0.;
     private int[] genes;
     private int qtdGenes;
     private static Random random;
@@ -131,19 +131,19 @@ public class IndNRainhas implements Individuo {
 
     @Override
     public double getAvaliacao() {
-        // contabiliza as colisoes e retorna o valor
-        int cont = 0;
-        for (int i = 0; i < genes.length - 1; i++) {
-            for (int j = i + 1; j < genes.length; j++) {
-                if (genes[i] == genes[j])
-                    cont++;
-                if (genes[i] == genes[j] - (j - i))
-                    cont++;
-                if (genes[i] == genes[j] + (j - i))
-                    cont++;
-            }
+        // Otimizado para O(N) usando contadores de conflitos
+        int[] diagPrincipal = new int[2 * qtdGenes - 1];
+        int[] diagSecundaria = new int[2 * qtdGenes - 1];
+        int conflitos = 0;
+
+        for (int i = 0; i < qtdGenes; i++) {
+            int dp = genes[i] - i + (qtdGenes - 1);
+            int ds = genes[i] + i;
+            conflitos += diagPrincipal[dp]++;
+            conflitos += diagSecundaria[ds]++;
         }
-        return cont;
+
+        return conflitos;
     }
 
     @Override
