@@ -1,15 +1,15 @@
 package nrainhas;
 
-import optimization.Ag;
-import optimization.interfaces.IndividuoInteiro;
+import optimization.AgInteiro;
+import optimization.IndividuoInteiro;
 
 public class AgMain {
     public static void main(String[] args) throws Exception {
 
         // testando a implementacao das heuristicas
-        Ag algoritmoGenetico = new Ag();
-        IndNRainhasFactory factory = new IndNRainhasFactory(30);
-        IndividuoInteiro melhor = algoritmoGenetico.executar(factory, 150, 30, 10000);
+        AgInteiro algoritmoGenetico = new AgInteiro();
+        IndNRainhasFactory factory = new IndNRainhasFactory(8);
+        IndividuoInteiro melhor = algoritmoGenetico.executar(factory, 20, 4, 2000);
         System.out.println("\nMelhor Individuo da N-Rainhas:\n" + melhor.toString());
 
     }

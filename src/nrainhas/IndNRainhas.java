@@ -4,11 +4,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-import optimization.interfaces.IndividuoInteiro;
+import optimization.Individuo;
+import optimization.IndividuoInteiro;
 
-public class IndNRainhas implements IndividuoInteiro {
+public class IndNRainhas extends IndividuoInteiro {
 
-    private double txMatacao = 0.;
+    private double txMatacao = 0.3;
     private int[] genes;
     private int qtdGenes;
     private static Random random;
@@ -167,6 +168,18 @@ public class IndNRainhas implements IndividuoInteiro {
             genes += this.genes[i] + " ";
         genes += "}";
         return "Individuo: { genes: " + genes + ", avaliacao: " + this.getAvaliacao() + " }";
+    }
+
+    @Override
+    public List<Individuo> recombinar(Individuo outro) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'recombinar'");
+    }
+
+    @Override
+    public double avaliar() {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'avaliar'");
     }
 
 }

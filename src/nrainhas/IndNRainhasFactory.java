@@ -1,7 +1,7 @@
 package nrainhas;
 
-import optimization.interfaces.Factory;
-import optimization.interfaces.IndividuoInteiro;
+import optimization.Factory;
+import optimization.Individuo;
 
 public class IndNRainhasFactory implements Factory {
 
@@ -12,7 +12,7 @@ public class IndNRainhasFactory implements Factory {
     }
 
     @Override
-    public IndividuoInteiro getInstance() {
+    public Individuo getInstance() {
         return new IndNRainhas(qtdGenes);
     }
     

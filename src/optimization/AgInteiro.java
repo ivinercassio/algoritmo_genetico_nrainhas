@@ -5,17 +5,14 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Random;
 
-import optimization.interfaces.Factory;
-import optimization.interfaces.IndividuoInteiro;
-
-public class Ag {
+public class AgInteiro {
 
     private static Random random = new Random();
 
     public IndividuoInteiro executar(Factory factory, int numPopulacao, int numElite, int qtdGeracoes) {
         List<IndividuoInteiro> populacaoInicial = new ArrayList<>(numPopulacao);
         for (int i = 0; i < numPopulacao; i++)
-            populacaoInicial.add(factory.getInstance());
+            populacaoInicial.add((IndividuoInteiro)factory.getInstance());
 
         for (int i = 0; i < qtdGeracoes; i++) {
             List<IndividuoInteiro> filhos = aplicarRecombinacao(populacaoInicial);
@@ -59,8 +56,7 @@ public class Ag {
     }
 
     private List<IndividuoInteiro> aplicarMutacao(List<IndividuoInteiro> populacaoInicial) {
-        return populacaoInicial.parallelStream()
-                .map(IndividuoInteiro::mutar)
+        return populacaoInicial.parallelStream().map(IndividuoInteiro::mutar)
                 .collect(ArrayList::new, ArrayList::add, ArrayList::addAll);
     }
 
