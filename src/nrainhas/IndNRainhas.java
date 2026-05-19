@@ -1,8 +1,12 @@
+package nrainhas;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-public class IndNRainhas implements Individuo {
+import optimization.interfaces.IndividuoInteiro;
+
+public class IndNRainhas implements IndividuoInteiro {
 
     private double txMatacao = 0.;
     private int[] genes;
@@ -51,9 +55,9 @@ public class IndNRainhas implements Individuo {
 
     // recombinacao com heuristica sem colisoes horizontais
     @Override
-    public List<Individuo> recombinar(Individuo pai2) {
+    public List<IndividuoInteiro> recombinar(IndividuoInteiro pai2) {
         // criar dois filhos com o crossover de um corte aleatorio entre pai1 e pai2
-        List<Individuo> filhos = new ArrayList<>(2);
+        List<IndividuoInteiro> filhos = new ArrayList<>(2);
         int posicaoCorte = random.nextInt(1, qtdGenes - 1);
         int[] genesFilho1 = new int[qtdGenes];
         int[] genesFilho2 = new int[qtdGenes];
@@ -120,7 +124,7 @@ public class IndNRainhas implements Individuo {
     } */
 
     @Override
-    public Individuo mutar() {
+    public IndividuoInteiro mutar() {
         // gera outro individuo com o conteudo do this.genes mutado, de acordo com a txMutacao
         IndNRainhas mutante = new IndNRainhas(qtdGenes, this.genes.clone());
         for (int i = 0; i < genes.length; i++)
