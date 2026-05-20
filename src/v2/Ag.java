@@ -11,7 +11,7 @@ public class Ag {
     private static Random random = new Random();
     private boolean isMaximizacao;
 
-    public void executar(Factory factory, int numPopulacao, int numElite, int qtdGeracoes) {
+    public Individuo executar(Factory factory, int numPopulacao, int numElite, int qtdGeracoes) {
         List<Individuo> populacaoInicial = new ArrayList<>(numPopulacao);
         for (int i = 0; i < numPopulacao; i++)
             populacaoInicial.add(factory.getInstance());
@@ -40,6 +40,7 @@ public class Ag {
             if (melhor.isOtimizado())
                 break;
         }
+        return melhorIndividuo(populacaoInicial);
     }
 
     private List<Individuo> aplicarRecombinacao(List<Individuo> populacaoInicial) {
