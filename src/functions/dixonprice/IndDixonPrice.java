@@ -77,7 +77,7 @@ public class IndDixonPrice extends Individuo {
                 mutado = true;
             }
         if (!mutado) // garante que haja mutacao
-            mutante.getGenes()[random.nextInt(qtdGenes)+1] += random.nextGaussian(0, 0.1);
+            mutante.getGenes()[random.nextInt(qtdGenes)] += random.nextGaussian(0, 0.1);
         return mutante;
     }
 
@@ -109,6 +109,15 @@ public class IndDixonPrice extends Individuo {
         if (!avaliado)
             avaliacao = avaliar();
         return avaliacao;
+    }
+
+    @Override
+    public String toString() {
+        String genes = "{ ";
+        for (int i = 0; i < this.genes.length; i++)
+            genes += String.format("%.2f ", this.genes[i]);
+        genes += "}";
+        return String.format("Individuo: { genes: %s, avaliacao: %.2f }", genes, this.getAvaliacao());
     }
     
 }
