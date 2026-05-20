@@ -8,6 +8,27 @@
             "type": "java",
             "name": "AgMain",
             "request": "launch",
+            "mainClass": "functions.dixonprice.AgMain",
+            "projectName": "algoritmo_genetico_nrainhas_213defb4"
+        },
+        {
+            "type": "java",
+            "name": "AgMain",
+            "request": "launch",
+            "mainClass": "nrainhas2.AgMain",
+            "projectName": "algoritmo_genetico_nrainhas_213defb4"
+        },
+        {
+            "type": "java",
+            "name": "AgMain",
+            "request": "launch",
+            "mainClass": "nrainhas.AgMain",
+            "projectName": "algoritmo_genetico_nrainhas_213defb4"
+        },
+        {
+            "type": "java",
+            "name": "AgMain",
+            "request": "launch",
             "mainClass": "AgMain",
             "projectName": "algoritmo_genetico_nrainhas_213defb4"
         },

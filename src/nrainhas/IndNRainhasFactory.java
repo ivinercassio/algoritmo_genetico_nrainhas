@@ -1,5 +1,9 @@
-public class IndNRainhasFactory implements Factory {
+package nrainhas;
 
+import v2.Factory;
+import v2.Individuo;
+
+public class IndNRainhasFactory implements Factory{
     private int qtdGenes;
 
     public IndNRainhasFactory(int qtdGenes) {

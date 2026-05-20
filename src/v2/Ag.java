@@ -1,3 +1,5 @@
+package v2;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -7,11 +9,14 @@ import java.util.Random;
 public class Ag {
 
     private static Random random = new Random();
+    private boolean isMaximizacao;
 
     public Individuo executar(Factory factory, int numPopulacao, int numElite, int qtdGeracoes) {
         List<Individuo> populacaoInicial = new ArrayList<>(numPopulacao);
         for (int i = 0; i < numPopulacao; i++)
             populacaoInicial.add(factory.getInstance());
+        
+        isMaximizacao = populacaoInicial.get(0).isMaximizacao();
 
         for (int i = 0; i < qtdGeracoes; i++) {
             List<Individuo> filhos = aplicarRecombinacao(populacaoInicial);
@@ -32,12 +37,9 @@ public class Ag {
             // imprimir o numero da geracao e o melhor individuo (genes e getAvaliacao)
             Individuo melhor = melhorIndividuo(populacaoInicial);
             imprimirIndividuo(i, melhor);
-            if (estaOtimizado(melhor))
+            if (melhor.isOtimizado())
                 break;
         }
-
-        // possivelmente alterar quando houver parada antes do limite de geracoes
-        // imprimirUltimaGeracao(populacaoInicial);
         return melhorIndividuo(populacaoInicial);
     }
 
@@ -55,14 +57,13 @@ public class Ag {
     }
 
     private List<Individuo> aplicarMutacao(List<Individuo> populacaoInicial) {
-        return populacaoInicial.parallelStream()
-                .map(Individuo::mutar)
+        return populacaoInicial.parallelStream().map(Individuo::mutar)
                 .collect(ArrayList::new, ArrayList::add, ArrayList::addAll);
     }
 
     private List<Individuo> aplicarElitismo(int numElite, List<Individuo> join) {
         List<Individuo> eliteList = new ArrayList<>();
-        if (join.get(0).isMaximizacao()) { // maximizacao -> decrescente (maior primeiro)
+        if (isMaximizacao) { // maximizacao -> decrescente (maior primeiro)
             Collections.sort(join, Comparator.comparingDouble(Individuo::getAvaliacao).reversed());
         } else { // minimizacao -> crescente (menor primeiro)
             Collections.sort(join, Comparator.comparingDouble(Individuo::getAvaliacao));
@@ -74,7 +75,7 @@ public class Ag {
     }
 
     private List<Individuo> aplicarRoleta(List<Individuo> join, int quantidade) {
-        if (join.get(0).isMaximizacao())
+        if (isMaximizacao)
             return aplicarRoletaMaximizacao(join, quantidade);
         return aplicarRoletaMinimizacao(join, quantidade);
     }
@@ -149,17 +150,9 @@ public class Ag {
         return selecionados;
     }
 
-    private boolean estaOtimizado(Individuo melhor) {
-        if (!melhor.isMaximizacao() && melhor.getAvaliacao() == 0)
-            return true;
-        if (melhor.isMaximizacao() && melhor.getAvaliacao() == Integer.MAX_VALUE)
-            return true;
-        return false;
-    }
-
     private Individuo melhorIndividuo(List<Individuo> populacao) {
         Individuo melhor = null;
-        if (populacao.get(0).isMaximizacao()) { // maximizacao
+        if (isMaximizacao) { // maximizacao
             double avaliacao = Double.MIN_VALUE;
             for (int j = 0; j < populacao.size(); j++) {
                 if (populacao.get(j).getAvaliacao() > avaliacao) {
