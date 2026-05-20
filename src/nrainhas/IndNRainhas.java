@@ -4,16 +4,18 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-import optimization.Individuo;
-import optimization.IndividuoInteiro;
+import v2.Individuo;
 
-public class IndNRainhas extends IndividuoInteiro {
+public class IndNRainhas extends Individuo {
 
-    private double txMatacao = 0.3;
-    private int[] genes;
-    private int qtdGenes;
     private static Random random;
     private static boolean maximizacao;
+
+    private double txMatacao = 0.3;
+    private int qtdGenes;
+    private double[] genes;
+    private double avaliacao;
+    private boolean avaliado;
 
     // genes = {2, 2, 0, 1};
     //   -----------------
@@ -26,9 +28,8 @@ public class IndNRainhas extends IndividuoInteiro {
     // 3 |   |   |   |   |
     //   -----------------
 
-    // construtor com a heuristica sem colisoes horizontais
     public IndNRainhas(int qtdGenes) {
-        this.genes = new int[qtdGenes];
+        this.genes = new double[qtdGenes];
         random = new Random();
         List<Integer> lines = new ArrayList<>();
         for (int i = 0; i < genes.length; i++) 
@@ -37,37 +38,29 @@ public class IndNRainhas extends IndividuoInteiro {
             genes[i] = lines.remove(random.nextInt(lines.size()));
         this.qtdGenes = qtdGenes;
         maximizacao = false;
+        avaliado = false;
     }
 
-    // construtor puramente aleatorico
-    /* public IndNRainhas(int qtdGenes) {
-        this.genes = new int[qtdGenes];
-        random = new Random();
-        for (int i = 0; i < genes.length; i++)
-            genes[i] = random.nextInt(0, qtdGenes);
-        this.qtdGenes = qtdGenes;
-        maximizacao = false;
-    } */
-
-    public IndNRainhas(int qtdGenes, int[] genes) {
+    public IndNRainhas(double[] genes) {
         this.genes = genes;
-        this.qtdGenes = qtdGenes;
+        this.qtdGenes = genes.length;
+        avaliado = false;
+        maximizacao = false;
     }
 
-    // recombinacao com heuristica sem colisoes horizontais
     @Override
-    public List<IndividuoInteiro> recombinar(IndividuoInteiro pai2) {
+    public List<Individuo> recombinar(Individuo outro) {
         // criar dois filhos com o crossover de um corte aleatorio entre pai1 e pai2
-        List<IndividuoInteiro> filhos = new ArrayList<>(2);
+        List<Individuo> filhos = new ArrayList<>(2);
         int posicaoCorte = random.nextInt(1, qtdGenes - 1);
-        int[] genesFilho1 = new int[qtdGenes];
-        int[] genesFilho2 = new int[qtdGenes];
+        double[] genesFilho1 = new double[qtdGenes];
+        double[] genesFilho2 = new double[qtdGenes];
         for (int i = 0; i < qtdGenes; i++)
             if (i < posicaoCorte) {
                 genesFilho1[i] = this.genes[i];
-                genesFilho2[i] = pai2.getGenes()[i];
+                genesFilho2[i] = outro.getGenes()[i];
             } else {
-                genesFilho1[i] = pai2.getGenes()[i];
+                genesFilho1[i] = outro.getGenes()[i];
                 genesFilho2[i] = this.genes[i];
             }
 
@@ -98,36 +91,15 @@ public class IndNRainhas extends IndividuoInteiro {
             if (genesFilho2[i] == Integer.MIN_VALUE) 
                 genesFilho2[i] = lines.remove(random.nextInt(lines.size()));
 
-        filhos.add(new IndNRainhas(qtdGenes, genesFilho1));
-        filhos.add(new IndNRainhas(qtdGenes, genesFilho2));
+        filhos.add(new IndNRainhas(genesFilho1));
+        filhos.add(new IndNRainhas(genesFilho2));
         return filhos;
     }
 
-    // recombinacao puramente aleatorico
-    /* @Override
-    public List<Individuo> recombinar(Individuo pai2) {
-        // criar dois filhos com o crossover de um corte aleatorio entre pai1 e pai2
-        List<Individuo> filhos = new ArrayList<>(2);
-        int posicaoCorte = random.nextInt(1, qtdGenes - 1);
-        int[] genesFilho1 = new int[qtdGenes];
-        int[] genesFilho2 = new int[qtdGenes];
-        for (int i = 0; i < qtdGenes; i++)
-            if (i < posicaoCorte) {
-                genesFilho1[i] = this.genes[i];
-                genesFilho2[i] = pai2.getGenes()[i];
-            } else {
-                genesFilho1[i] = pai2.getGenes()[i];
-                genesFilho2[i] = this.genes[i];
-            }
-        filhos.add(new IndNRainhas(qtdGenes, genesFilho1));
-        filhos.add(new IndNRainhas(qtdGenes, genesFilho2));
-        return filhos;
-    } */
-
     @Override
-    public IndividuoInteiro mutar() {
+    public Individuo mutar() {
         // gera outro individuo com o conteudo do this.genes mutado, de acordo com a txMutacao
-        IndNRainhas mutante = new IndNRainhas(qtdGenes, this.genes.clone());
+        IndNRainhas mutante = new IndNRainhas(this.genes.clone());
         for (int i = 0; i < genes.length; i++)
             if (random.nextInt() < txMatacao)
                 mutante.genes[i] = random.nextInt(0, qtdGenes);
@@ -135,19 +107,21 @@ public class IndNRainhas extends IndividuoInteiro {
     }
 
     @Override
-    public double getAvaliacao() {
+    public double avaliar() {
         // Otimizado para O(N) usando contadores de conflitos
         int[] diagPrincipal = new int[2 * qtdGenes - 1];
         int[] diagSecundaria = new int[2 * qtdGenes - 1];
         int conflitos = 0;
 
         for (int i = 0; i < qtdGenes; i++) {
-            int dp = genes[i] - i + (qtdGenes - 1);
-            int ds = genes[i] + i;
+            int dp = (int) (genes[i] - i + (qtdGenes - 1));
+            int ds = (int) (genes[i] + i);
             conflitos += diagPrincipal[dp]++;
             conflitos += diagSecundaria[ds]++;
         }
 
+        avaliado = true;
+        avaliacao = conflitos;
         return conflitos;
     }
 
@@ -157,7 +131,19 @@ public class IndNRainhas extends IndividuoInteiro {
     }
 
     @Override
-    public int[] getGenes() {
+    public double getAvaliacao() {
+        if(!avaliado)
+            avaliacao = avaliar();
+        return avaliacao;
+    }
+
+    @Override
+    public boolean isOtimizado() {
+        return (getAvaliacao() == 0);
+    }
+
+    @Override
+    public double[] getGenes() {
         return genes;
     }
 
@@ -169,17 +155,5 @@ public class IndNRainhas extends IndividuoInteiro {
         genes += "}";
         return "Individuo: { genes: " + genes + ", avaliacao: " + this.getAvaliacao() + " }";
     }
-
-    @Override
-    public List<Individuo> recombinar(Individuo outro) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'recombinar'");
-    }
-
-    @Override
-    public double avaliar() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'avaliar'");
-    }
-
+    
 }
