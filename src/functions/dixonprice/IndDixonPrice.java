@@ -68,39 +68,47 @@ public class IndDixonPrice extends Individuo {
     }
 
     @Override
-    public Individuo mutar() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'mutar'");
+    public Individuo mutar() { 
+        boolean mutado = false;
+        Individuo mutante = new IndDixonPrice(this.genes, this.blx);
+        for (int i = 0; i < genes.length; i++)
+            if (random.nextInt() < txMatacao) {
+                mutante.getGenes()[i] += random.nextGaussian(0, 0.1);
+                mutado = true;
+            }
+        if (!mutado) // garante que haja mutacao
+            mutante.getGenes()[random.nextInt(qtdGenes)+1] += random.nextGaussian(0, 0.1);
+        return mutante;
     }
 
     @Override
     public double avaliar() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'avaliar'");
+        double valor = Math.pow((genes[0] - 1), 2);
+        for (int i = 1; i < qtdGenes; i++) 
+            valor += i * Math.pow((2 * Math.pow(genes[i], 2) - genes[i-1]), 2);
+        return valor;
     }
 
     @Override
     public boolean isMaximizacao() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'isMaximizacao'");
+        return maximizacao;
     }
 
     @Override
     public boolean isOtimizado() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'isOtimizado'");
+        return (getAvaliacao() == 0.0); // minimo global
     }
 
     @Override
     public double[] getGenes() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getGenes'");
+        return this.genes;
     }
 
     @Override
     public double getAvaliacao() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getAvaliacao'");
+        if (!avaliado)
+            avaliacao = avaliar();
+        return avaliacao;
     }
     
 }
