@@ -172,9 +172,9 @@ public class Ag {
         } else { // minimizacao
             double avaliacao = Double.MAX_VALUE;
             for (int j = 0; j < populacao.size(); j++) {
-                if (populacao.get(j).getAvaliacao() < avaliacao) {
+                if (Math.abs(populacao.get(j).getAvaliacao()) < avaliacao) {
                     melhor = populacao.get(j);
-                    avaliacao = populacao.get(j).getAvaliacao();
+                    avaliacao = Math.abs(populacao.get(j).getAvaliacao());
                 }
             }
         }
