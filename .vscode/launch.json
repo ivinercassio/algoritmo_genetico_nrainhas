@@ -6,6 +6,13 @@
     "configurations": [
         {
             "type": "java",
+            "name": "MainLangermann",
+            "request": "launch",
+            "mainClass": "functions.langermann.MainLangermann",
+            "projectName": "algoritmo_genetico_otimizacao_f16ab1e6"
+        },
+        {
+            "type": "java",
             "name": "MainDixon",
             "request": "launch",
             "mainClass": "functions.dixonprice.MainDixon",
