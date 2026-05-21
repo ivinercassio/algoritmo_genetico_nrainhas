@@ -3,7 +3,7 @@ package functions.dixonprice;
 import v2.Ag;
 import v2.Individuo;
 
-public class AgMain {
+public class MainDixon {
     public static void main(String[] args) {
         Ag algoritmoGenetico = new Ag();
         IndDixonPriceFactory factory = new IndDixonPriceFactory(3, false);

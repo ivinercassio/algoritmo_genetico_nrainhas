@@ -6,6 +6,27 @@
     "configurations": [
         {
             "type": "java",
+            "name": "MainDixon",
+            "request": "launch",
+            "mainClass": "functions.dixonprice.MainDixon",
+            "projectName": "algoritmo_genetico_otimizacao_f16ab1e6"
+        },
+        {
+            "type": "java",
+            "name": "MainLevy",
+            "request": "launch",
+            "mainClass": "functions.levy.MainLevy",
+            "projectName": "algoritmo_genetico_otimizacao_f16ab1e6"
+        },
+        {
+            "type": "java",
+            "name": "AgMain",
+            "request": "launch",
+            "mainClass": "functions.levy.AgMain",
+            "projectName": "algoritmo_genetico_otimizacao_f16ab1e6"
+        },
+        {
+            "type": "java",
             "name": "AgMain",
             "request": "launch",
             "mainClass": "functions.dixonprice.AgMain",
