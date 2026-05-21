@@ -3,11 +3,11 @@ package nrainhas;
 import v2.Ag;
 import v2.Individuo;
 
-public class AgMain {
+public class MainNRainhas {
     public static void main(String[] args) {
         // testando a implementacao das heuristicas
         Ag algoritmoGenetico = new Ag();
-        IndNRainhasFactory factory = new IndNRainhasFactory(8);
+        IndNRainhasFactory factory = new IndNRainhasFactory(12);
         Individuo melhor = algoritmoGenetico.executar(factory, 20, 4, 2000);
         System.out.println("\nMelhor Individuo da N-Rainhas:\n" + melhor.toString());
     }

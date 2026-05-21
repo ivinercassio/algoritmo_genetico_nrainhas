@@ -15,7 +15,7 @@ public class Ag {
         List<Individuo> populacaoInicial = new ArrayList<>(numPopulacao);
         for (int i = 0; i < numPopulacao; i++)
             populacaoInicial.add(factory.getInstance());
-        
+
         isMaximizacao = populacaoInicial.get(0).isMaximizacao();
 
         for (int i = 0; i < qtdGeracoes; i++) {
@@ -37,7 +37,7 @@ public class Ag {
             // imprimir o numero da geracao e o melhor individuo (genes e getAvaliacao)
             Individuo melhor = melhorIndividuo(populacaoInicial);
             imprimirIndividuo(i, melhor);
-            if (melhor.isOtimizado()) 
+            if (melhor.isOtimizado())
                 return melhor;
         }
         return melhorIndividuo(populacaoInicial);
@@ -82,72 +82,81 @@ public class Ag {
 
     private List<Individuo> aplicarRoletaMaximizacao(List<Individuo> join, int quantidade) {
         List<Individuo> selecionados = new ArrayList<>(quantidade);
-        // Pré-calcular somatório e probabilidades cumulativas
-        double[] cumulativas = new double[join.size()];
-        double somaTotal = 0;
-        for (int k = 0; k < join.size(); k++) {
-            somaTotal += join.get(k).getAvaliacao();
-            cumulativas[k] = somaTotal;
-        }
         for (int j = 0; j < quantidade; j++) {
+            double acrescimo = Math.abs(menorAvaliacao(join));
+            double somaTotal = somatorioAvaliacao(join, acrescimo);
             double sorteado = random.nextDouble() * somaTotal;
             Individuo escolhido = null;
+            double soma = 0;
             for (int k = 0; k < join.size(); k++) {
-                if (cumulativas[k] >= sorteado) {
+                soma += join.get(k).getAvaliacao() + acrescimo;
+                if (soma >= sorteado) {
                     escolhido = join.get(k);
                     break;
                 }
             }
             selecionados.add(escolhido);
             join.remove(escolhido);
-            // Recalcular cumulativas após remoção
-            somaTotal = 0;
-            for (int k = 0; k < join.size(); k++) {
-                somaTotal += join.get(k).getAvaliacao();
-                cumulativas[k] = somaTotal;
-            }
         }
         return selecionados;
     }
 
+    // em caso de resultado igual a infinito atribui-se um valor extremamente grande ao somatorio
+    // entretanto, talvez o valor sorteado pela roleta tambem muito grande
+    // superando a somatorio real dos getAvaliacao de todos os individuos
+
+    // -20, 10, 5, -4 -> (+20)
+    // 0, 30, 25, 29
+
     private List<Individuo> aplicarRoletaMinimizacao(List<Individuo> join, int quantidade) {
         List<Individuo> selecionados = new ArrayList<>(quantidade);
-        // Pré-calcular somatório e probabilidades cumulativas
-        double[] cumulativas = new double[join.size()];
-        double somaTotal = 0;
-        for (int k = 0; k < join.size(); k++) {
-            double aval = join.get(k).getAvaliacao();
-            double prob = (aval == 0) ? Double.MAX_VALUE / join.size() : 1.0 / aval;
-            somaTotal += prob;
-            cumulativas[k] = somaTotal;
-        }
-        if (Double.isInfinite(somaTotal)) {
-            somaTotal = Double.MAX_VALUE / join.size() * join.size();
-        }
         for (int j = 0; j < quantidade; j++) {
+            double acrescimo = Math.abs(menorAvaliacao(join));
+            double somaTotal = somatorioAvaliacaoInvertido(join, acrescimo);
             double sorteado = random.nextDouble() * somaTotal;
             Individuo escolhido = null;
-            for (int k = 0; k < join.size(); k++) {
-                if (cumulativas[k] >= sorteado) {
-                    escolhido = join.get(k);
-                    break;
-                }
+            double soma = 0;
+            int posicao = 0;
+            while (soma < sorteado) {
+                double avaliacao = 1 / (join.get(posicao).getAvaliacao() + acrescimo);
+                if (Double.isInfinite(avaliacao))
+                    soma += Double.MAX_VALUE / quantidade;
+                else 
+                    soma += avaliacao;
+                escolhido = join.get(posicao);
+                posicao++;
             }
             selecionados.add(escolhido);
             join.remove(escolhido);
-            // Recalcular cumulativas após remoção
-            somaTotal = 0;
-            for (int k = 0; k < join.size(); k++) {
-                double aval = join.get(k).getAvaliacao();
-                double prob = (aval == 0) ? Double.MAX_VALUE / join.size() : 1.0 / aval;
-                somaTotal += prob;
-                cumulativas[k] = somaTotal;
-            }
-            if (Double.isInfinite(somaTotal)) {
-                somaTotal = Double.MAX_VALUE / join.size() * join.size();
-            }
         }
         return selecionados;
+    }
+
+    private double menorAvaliacao(List<Individuo> list) {
+        double menor = Double.MIN_VALUE;
+        for (int i = 0; i < list.size(); i++) 
+            if (list.get(i).getAvaliacao() <= menor)
+                menor = list.get(i).getAvaliacao();
+        return menor;
+    }
+
+    private double somatorioAvaliacao(List<Individuo> list, double acrescimo) {
+        double somaTotal = 0;
+        for (int k = 0; k < list.size(); k++) 
+            somaTotal += list.get(k).getAvaliacao() + acrescimo;
+        return somaTotal;
+    }
+
+    private double somatorioAvaliacaoInvertido(List<Individuo> list, double acrescimo) {
+        double somaTotal = 0;
+        for (int k = 0; k < list.size(); k++) {
+            double prob = 1.0 / (list.get(k).getAvaliacao() + acrescimo);
+            if (Double.isInfinite(prob))
+                somaTotal += Double.MAX_VALUE / list.size();
+            else 
+                somaTotal += prob;
+        }
+        return somaTotal;
     }
 
     private Individuo melhorIndividuo(List<Individuo> populacao) {
@@ -163,9 +172,9 @@ public class Ag {
         } else { // minimizacao
             double avaliacao = Double.MAX_VALUE;
             for (int j = 0; j < populacao.size(); j++) {
-                if (populacao.get(j).getAvaliacao() < avaliacao) {
+                if (Math.abs(populacao.get(j).getAvaliacao()) < avaliacao) {
                     melhor = populacao.get(j);
-                    avaliacao = populacao.get(j).getAvaliacao();
+                    avaliacao = Math.abs(populacao.get(j).getAvaliacao());
                 }
             }
         }

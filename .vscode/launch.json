@@ -6,6 +6,20 @@
     "configurations": [
         {
             "type": "java",
+            "name": "MainNRainhas",
+            "request": "launch",
+            "mainClass": "nrainhas.MainNRainhas",
+            "projectName": "algoritmo_genetico_otimizacao_f16ab1e6"
+        },
+        {
+            "type": "java",
+            "name": "MainDixonPrice",
+            "request": "launch",
+            "mainClass": "functions.dixonprice.MainDixonPrice",
+            "projectName": "algoritmo_genetico_otimizacao_f16ab1e6"
+        },
+        {
+            "type": "java",
             "name": "MainLangermann",
             "request": "launch",
             "mainClass": "functions.langermann.MainLangermann",
