@@ -37,8 +37,8 @@ public class Ag {
             // imprimir o numero da geracao e o melhor individuo (genes e getAvaliacao)
             Individuo melhor = melhorIndividuo(populacaoInicial);
             imprimirIndividuo(i, melhor);
-            if (melhor.isOtimizado())
-                break;
+            if (melhor.isOtimizado()) 
+                return melhor;
         }
         return melhorIndividuo(populacaoInicial);
     }

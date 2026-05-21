@@ -45,11 +45,8 @@ public class IndDixonPrice extends Individuo {
         
         if (blx) { // crossover blx-alpha
             double alpha = random.nextGaussian(0, 0.1);
-            double distance = 0;
-            for (int i = 0; i < qtdGenes; i++) 
-                distance += Math.pow((this.genes[i] + outro.getGenes()[i]), 2);
-            distance = Math.sqrt(distance);
             for (int i = 0; i < qtdGenes; i++) {
+                double distance = Math.abs(this.genes[i] - outro.getGenes()[i]);
                 filho1[i] = this.genes[i] + alpha * distance;
                 filho2[i] = outro.getGenes()[i] + alpha * distance;
             }
@@ -96,7 +93,9 @@ public class IndDixonPrice extends Individuo {
 
     @Override
     public boolean isOtimizado() {
-        return (getAvaliacao() == 0.0); // minimo global
+        avaliacao = (int)(avaliacao * 100);
+        avaliacao /= 100;
+        return avaliacao == 0.00; // minimo global
     }
 
     @Override

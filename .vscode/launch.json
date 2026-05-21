@@ -9,6 +9,13 @@
             "name": "AgMain",
             "request": "launch",
             "mainClass": "functions.dixonprice.AgMain",
+            "projectName": "algoritmo_genetico_otimizacao_f16ab1e6"
+        },
+        {
+            "type": "java",
+            "name": "AgMain",
+            "request": "launch",
+            "mainClass": "functions.dixonprice.AgMain",
             "projectName": "algoritmo_genetico_nrainhas_213defb4"
         },
         {
