@@ -25,7 +25,7 @@ public class IndividuoFuncao extends Individuo {
         this.qtdGenes = qtdGenes;
         this.genes = new double[qtdGenes];
         // dominio da funcao pertence a [-10,10]
-        for (int i = 0; i < genes.length; i++) 
+        for (int i = 0; i < qtdGenes; i++) 
             genes[i] = -10 + (20 * random.nextDouble());
         avaliado = false;
         this.blx = blx;

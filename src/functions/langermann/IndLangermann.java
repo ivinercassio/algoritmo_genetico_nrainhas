@@ -12,10 +12,16 @@ public class IndLangermann extends IndividuoFuncao {
 
     public IndLangermann(int qtdGenes, boolean blx) {
         super(qtdGenes, blx);
+        // dominio da funcao pertence a [0,10]
+        for (int i = 0; i < genes.length; i++) 
+            genes[i] = 10 * random.nextDouble();
     }
 
     public IndLangermann(double[] genes, boolean blx) {
         super(genes, blx);
+        // dominio da funcao pertence a [0,10]
+        for (int i = 0; i < genes.length; i++) 
+            genes[i] = 10 * random.nextDouble();
     }
 
     @Override
